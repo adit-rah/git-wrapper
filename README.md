@@ -13,13 +13,7 @@ source ~/.bashrc
 ```
 Now you can run the wrapper anywhere as:
 
-git-wrapper
-
-If you prefer a shorter alias, add this to your shell config (~/.bashrc or ~/.zshrc):
-
-alias gw="git-wrapper"
-
-Then use gw instead of git-wrapper.
+`gw`
 
 ## Usage
 
