@@ -1,0 +1,27 @@
+# Binary output
+# Build output
+/bin/
+/*.out
+gw
+git-wrapper
+*.out
+
+# Dependency directories (Go modules are usually fine)
+vendor/
+
+# Editors and IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+*~
+
+# Temporary/log files
+*.tmp
+*.log
+*.swp
+
+# Local CLI metadata (if you use it)
+.gh_branch_meta
+.branch_base
