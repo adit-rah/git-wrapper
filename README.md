@@ -18,10 +18,10 @@ Now you can run the wrapper anywhere as:
 ## Usage
 
 Create a new branch and commit
-gw create update my-feature
+`gw create update my-feature`
 
 Make additional commits
-gw modify
+`gw modify`
 
 Submit a pull request
 `gw submit`
