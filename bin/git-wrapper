@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+set -e
+
+get_branch_name() {
+    git rev-parse --abbrev-ref HEAD
+}
+
+BRANCH_META=".gh_branch_meta"
+BRANCH_TYPE=".branch_type"
+BRANCH_NAME=".branch_name"
+BRANCH_BASE=".branch_base"
+
+case "$1" in
+  create)
+    TYPE=$2
+    NAME=$3
+    if [[ -z "$TYPE" || -z "$NAME" ]]; then
+      echo "Usage: gh create <type> <name>"
+      exit 1
+    fi
+
+    BASE_BRANCH=$(get_branch_name)
+    NEW_BRANCH="$TYPE/$NAME"
+
+    git checkout -b "$NEW_BRANCH"
+    git add .
+    echo "1" > $BRANCH_META
+    git commit -m "$NEW_BRANCH update 1"
+
+    echo "$TYPE" > $BRANCH_TYPE
+    echo "$NAME" > $BRANCH_NAME
+    echo "$BASE_BRANCH" > $BRANCH_BASE
+
+    echo "Created new branch $NEW_BRANCH from $BASE_BRANCH"
+    ;;
+
+  modify)
+    if [[ ! -f $BRANCH_META ]]; then
+      echo "No branch metadata found. Did you run 'gh create'?"
+      exit 1
+    fi
+
+    TYPE=$(cat $BRANCH_TYPE)
+    NAME=$(cat $BRANCH_NAME)
+    COUNT=$(cat $BRANCH_META)
+    NEXT=$((COUNT + 1))
+
+    git add .
+    git commit -m "$TYPE/$NAME update $NEXT"
+    echo "$NEXT" > $BRANCH_META
+
+    echo "Committed: $TYPE/$NAME update $NEXT"
+    ;;
+
+  submit)
+    BRANCH=$(get_branch_name)
+    git push -u origin "$BRANCH"
+
+    BASE_BRANCH=$(cat $BRANCH_BASE 2>/dev/null || echo "main")
+    PR_URL=$(gh pr create --base "$BASE_BRANCH" --head "$BRANCH" --fill --json url -q .url)
+
+    echo "Pull Request created: $PR_URL"
+    ;;
+
+  fold)
+    BRANCH=$(get_branch_name)
+    BASE_BRANCH=$(cat $BRANCH_BASE 2>/dev/null || echo "main")
+
+    echo "Merging $BRANCH into $BASE_BRANCH..."
+
+    git checkout "$BASE_BRANCH"
+    git pull origin "$BASE_BRANCH"
+    git merge --no-ff "$BRANCH"
+    git push origin "$BASE_BRANCH"
+
+    git branch -d "$BRANCH"
+    git push origin --delete "$BRANCH" || true
+
+    echo "Branch $BRANCH merged into $BASE_BRANCH and deleted."
+    ;;
+
+  *)
+    echo "Unknown command: $1"
+    echo "Usage: gh {create|modify|submit|fold}"
+    exit 1
+    ;;
+esac
