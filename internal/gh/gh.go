@@ -12,3 +12,17 @@ func CreatePR(base, head string) (string, error) {
 	}
 	return strings.TrimSpace(string(out)), nil
 }
+
+// GetPRInfo returns the PR URL and state for the given branch
+func GetPRInfo(branch string) (string, string, error) {
+	// Check if a PR exists
+	out, err := exec.Command("gh", "pr", "view", branch, "--json", "url,state", "-q", ".url+\" \"+.state").Output()
+	if err != nil {
+		return "", "", err
+	}
+	parts := strings.SplitN(strings.TrimSpace(string(out)), " ", 2)
+	if len(parts) != 2 {
+		return parts[0], "", nil
+	}
+	return parts[0], parts[1], nil
+}

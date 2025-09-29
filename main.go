@@ -21,6 +21,7 @@ func main() {
 	rootCmd.AddCommand(cmd.ModifyCmd)
 	rootCmd.AddCommand(cmd.SubmitCmd)
 	rootCmd.AddCommand(cmd.FoldCmd)
+	rootCmd.AddCommand(cmd.StatusCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
